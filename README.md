@@ -97,8 +97,7 @@ The sidebar contains several controls that change how the AI makes predictions. 
 
 ## 🔐 Privacy & Security
 
-- Your OpenAI API key is stored locally in a `secrets.toml` file
-- This file is excluded from version control for security
+- No OpenAI API is required
 - Text you enter is sent to OpenAI's servers for processing
 - No data is stored permanently by this application
 
@@ -110,18 +109,9 @@ The sidebar contains several controls that change how the AI makes predictions. 
 - **Educators:** Demonstrate how AI understands language context
 - **Curious Minds:** Experiment with how AI predicts human language
 
-## 🎓 Learning Opportunity
-
-This project demonstrates:
-- Integration with modern AI APIs (OpenAI)
-- Building interactive web applications with Streamlit
-- Natural Language Processing (NLP) concepts
-- Parameter tuning and its effects on AI output
-- Creating user-friendly interfaces for complex technology
 
 ---
 
-**Project Type:** Data Science Portfolio Project  
-**Author:** Juan Pablo  
+**Author:** JuanBioData  
 **Purpose:** Educational tool to explore AI-powered text prediction  
-**Technology Stack:** Python, Streamlit, OpenAI GPT-4o-mini
+**Technology Stack:** Python, Streamlit, OpenAI API
