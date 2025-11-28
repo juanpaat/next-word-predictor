@@ -102,13 +102,6 @@ with st.sidebar:
             "🇵🇹 Portuguese"
         ]
     )
-    
-    # Exclude words input
-    exclude_words = st.text_input(
-        "Exclude words",
-        placeholder="optional",
-        help="Comma-separated words to exclude from predictions"
-    )
 
 def get_word_predictions(user_input, settings):
     """Get word predictions from OpenAI based on user input and settings"""
@@ -119,14 +112,29 @@ def get_word_predictions(user_input, settings):
     try:
         client = OpenAI(api_key=settings['api_key'])
         
-        # Simplified prompt to just continue the text
+        # Map language display to actual language name
+        lang_map = {
+            "🇬🇧 English": "English",
+            "🇪🇸 Spanish": "Spanish",
+            "🇫🇷 French": "French",
+            "🇩🇪 German": "German",
+            "🇵🇹 Portuguese": "Portuguese"
+        }
+        output_language = lang_map.get(settings['language'], "English")
+        
+        # Extract clean topic name (remove emoji)
+        topic = settings['topics'].split(" ", 1)[1] if " " in settings['topics'] else settings['topics']
+        
+        # Build comprehensive prompt with all settings
+        system_content = f"You are a next-word prediction assistant. Continue the given text naturally in a {settings['tone'].lower()} tone, considering the topic/domain of {topic}. Provide your response in {output_language}."
+        
         prompt = f"Continue this text with the next {settings['num_words']} word(s): {user_input}"
         
         # Call OpenAI API with logprobs enabled
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "You are a next-word prediction assistant. Continue the given text naturally."},
+                {"role": "system", "content": system_content},
                 {"role": "user", "content": prompt}
             ],
             temperature=settings['temperature'],
@@ -204,8 +212,7 @@ settings = {
     'topics': topics,
     'temperature': temperature,
     'tone': tone,
-    'language': language,
-    'exclude_words': exclude_words
+    'language': language
 }
 
 # Display predictions
