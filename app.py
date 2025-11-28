@@ -2,25 +2,13 @@ import streamlit as st
 from openai import OpenAI
 import toml
 import os
+import math
 
 # Configure the page
 st.set_page_config(
     page_title="Next Word Predictor",
     layout="wide",
     initial_sidebar_state="expanded"
-)
-
-# Custom CSS to set sidebar width
-st.markdown(
-    """
-    <style>
-    [data-testid="stSidebar"][aria-expanded="true"]{
-        min-width: 33%;
-        max-width: 33%;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
 )
 
 # Load API key and system prompt from Streamlit secrets (cloud) or secrets.toml (local)
@@ -72,17 +60,17 @@ with st.sidebar:
     topics = st.selectbox(
         "Select topic",
         options=[
-            "General",
-            "Technology",
-            "Health",
-            "Education",
-            "Finance",
-            "Entertainment",
-            "Science",
-            "Travel",
-            "Food",
-            "Sports",
-            "History"
+            "🌐 General",
+            "💻 Technology",
+            "🏥 Health",
+            "📚 Education",
+            "💰 Finance",
+            "🎬 Entertainment",
+            "🔬 Science",
+            "✈️ Travel",
+            "🍔 Food",
+            "⚽ Sports",
+            "📜 History"
         ],
         help="Select a topic to contextualize predictions"
     )
@@ -122,47 +110,6 @@ with st.sidebar:
         help="Comma-separated words to exclude from predictions"
     )
 
-def build_prompt(user_input, num_words, topics, tone, language, exclude_words):
-    """Build a comprehensive prompt based on all user settings"""
-    
-    # Map language display to actual language name
-    lang_map = {
-        "🇬🇧 English": "English",
-        "🇪🇸 Spanish": "Spanish",
-        "🇫🇷 French": "French",
-        "🇩🇪 German": "German",
-        "🇵🇹 Portuguese": "Portuguese"
-    }
-    output_language = lang_map.get(language, "English")
-    
-    # Build the main prompt
-    prompt = f"""You are a next-word prediction assistant. Based on the given text, predict the next {num_words} most likely word(s) that would naturally continue the text.
-
-Input text: "{user_input}"
-
-Context and Requirements:
-- Topic/Domain: {topics}
-- Tone: {tone}
-- Output Language: {output_language}
-"""
-    
-    # Add exclusion if specified
-    if exclude_words and exclude_words.strip():
-        excluded = [word.strip() for word in exclude_words.split(",")]
-        prompt += f"- Excluded words (do not include): {', '.join(excluded)}\n"
-    
-    prompt += f"""
-Instructions:
-1. Predict exactly {num_words} word(s) that would most naturally follow the input text
-2. Consider the specified topic and tone
-3. Return ONLY the predicted words in {output_language}, separated by commas
-4. Do not include any explanations or additional text
-5. Words should flow naturally from the input text
-
-Example format: word1, word2, word3"""
-    
-    return prompt
-
 def get_word_predictions(user_input, settings):
     """Get word predictions from OpenAI based on user input and settings"""
     
@@ -172,31 +119,65 @@ def get_word_predictions(user_input, settings):
     try:
         client = OpenAI(api_key=settings['api_key'])
         
-        # Build the prompt
-        prompt = build_prompt(
-            user_input,
-            settings['num_words'],
-            settings['topics'],
-            settings['tone'],
-            settings['language'],
-            settings['exclude_words']
-        )
+        # Simplified prompt to just continue the text
+        prompt = f"Continue this text with the next {settings['num_words']} word(s): {user_input}"
         
-        # Call OpenAI API
+        # Call OpenAI API with logprobs enabled
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": system_prompt},
+                {"role": "system", "content": "You are a next-word prediction assistant. Continue the given text naturally."},
                 {"role": "user", "content": prompt}
             ],
-            temperature=settings['temperature']
+            temperature=settings['temperature'],
+            max_tokens=settings['num_words'],
+            logprobs=True,
+            top_logprobs=5
         )
         
-        # Extract predicted words from response
-        predicted_text = response.choices[0].message.content.strip()
-        predicted_words = [word.strip() for word in predicted_text.split(",")]
+        # Extract all tokens generated
+        all_tokens_data = response.choices[0].logprobs.content
         
-        return predicted_words[:settings['num_words']], None
+        # Build results for each token position
+        token_results = []
+        overall_logprob = 0  # Sum of logprobs for overall probability
+        
+        for token_idx, token_data in enumerate(all_tokens_data):
+            # Get top 5 alternatives for this token position
+            top_tokens = token_data.top_logprobs
+            
+            # The actual selected token (first in the list)
+            selected_token = top_tokens[0].token
+            selected_logprob = top_tokens[0].logprob
+            
+            # Add to overall logprob
+            overall_logprob += selected_logprob
+            
+            # Extract all alternatives
+            alternatives = []
+            for i, item in enumerate(top_tokens[:5]):
+                token = item.token
+                prob = math.exp(item.logprob)  # convert logprob → probability
+                alternatives.append({
+                    'rank': i + 1,
+                    'token': token,
+                    'probability': prob
+                })
+            
+            token_results.append({
+                'position': token_idx + 1,
+                'selected_token': selected_token,
+                'alternatives': alternatives
+            })
+        
+        # Calculate overall probability of the entire sequence
+        overall_probability = math.exp(overall_logprob)
+        
+        return {
+            'tokens': token_results,
+            'overall_probability': overall_probability,
+            'num_tokens': len(token_results)
+        }, None
         
     except Exception as e:
         return None, f"Error: {str(e)}"
@@ -214,8 +195,7 @@ user_input = st.text_area(
 # Submit button
 submit_button = st.button("Submit", type="primary")
 
-# Predicted Words Section
-st.subheader("Predicted Words")
+
 
 # Prepare settings dictionary
 settings = {
@@ -234,13 +214,53 @@ if submit_button and user_input:
         st.error("Please enter your OpenAI API key to get predictions")
     else:
         with st.spinner("Generating predictions..."):
-            predicted_words, error = get_word_predictions(user_input, settings)
+            result, error = get_word_predictions(user_input, settings)
             
             if error:
                 st.error(error)
-            elif predicted_words:
-                # Create the combined text with original input and predicted words
-                predicted_text = " ".join(predicted_words)
+            elif result:
+                # Display the sequence of tokens with their probabilities
+                st.markdown("### Generated Token Sequence:")
+                
+                # Create header
+                col1, col2, col3 = st.columns([1, 3, 2])
+                with col1:
+                    st.markdown("**Position**")
+                with col2:
+                    st.markdown("**Token**")
+                with col3:
+                    st.markdown("**Probability**")
+                
+                st.markdown("---")
+                
+                # Display each token in the sequence
+                cumulative_tokens = []
+                for token_info in result['tokens']:
+                    # Get the selected token's probability (rank 1)
+                    selected_prob = token_info['alternatives'][0]['probability']
+                    
+                    # Build cumulative token sequence with individual backticks and spaces
+                    cumulative_tokens.append(token_info['selected_token'])
+                    cumulative_text = " ".join([f"`{token}`" for token in cumulative_tokens])
+                    
+                    col1, col2, col3 = st.columns([1, 3, 2])
+                    with col1:
+                        st.markdown(f"**{token_info['position']}**")
+                    with col2:
+                        st.markdown(cumulative_text)
+                    with col3:
+                        st.markdown(f"*{selected_prob:.5f}*")
+                
+                st.markdown("---")
+                
+                # Display overall sequence probability
+                st.markdown(f"### Overall Sequence Probability: **{result['overall_probability']:.6f}**")
+                st.markdown(f"*Generated {result['num_tokens']} token(s)*")
+                
+                st.markdown("---")
+                
+                # Build the complete predicted text from all tokens
+                predicted_text = "".join([token_info['selected_token'] for token_info in result['tokens']])
                 
                 # Display the original text with predicted words highlighted
                 st.markdown(
@@ -265,5 +285,6 @@ if submit_button and user_input:
                     """,
                     unsafe_allow_html=True
                 )
+
 else:
     st.info("Enter text above and click Submit to get word predictions")
