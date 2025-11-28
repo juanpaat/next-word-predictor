@@ -1,5 +1,9 @@
 # Next Word Predictor
 
+![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
+![Streamlit](https://img.shields.io/badge/streamlit-1.51.0-red.svg)
+![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o--mini-green.svg)
+
 An intelligent web application that predicts what word comes next in your text. Powered by advanced artificial intelligence, this tool analyzes the context of what you've written and suggests the most natural words to follow. Whether you type a single word, a phrase, or an entire paragraph, the AI considers the meaning, flow, and style to provide relevant predictions.
 
 This is a language model that understands context, tone, and subject matter. You can customize everything from the writing style (formal or casual) to the topic (technology, health, sports, etc.) to the level of creativity. The result is a powerful tool for exploring how modern AI processes and predicts human language, making it perfect for writers, language learners, educators, and anyone curious about artificial intelligence.
@@ -32,7 +36,7 @@ Imagine you're writing and want to see what an AI thinks should come next. This 
 
 The predictions adapt to the context you provide, understanding different writing styles and subject matters based on the patterns the AI has learned.
 
-## 🤖 How It Works (The Simple Version)
+## 🤖 How It Works
 
 This application uses **GPT-4o-mini**, a powerful language model created by OpenAI. Think of it as an AI that has read millions of books, articles, and websites, learning patterns in how people write and speak.
 
@@ -52,13 +56,13 @@ The AI doesn't just look at the last word—it understands the full context of y
 
 The sidebar contains several controls. Here's what each one does and their current implementation status:
 
-### 📊 Number of Words to Predict (1-10) ✅ **Active**
+### 📊 Number of Words to Predict (1-10) 
 - **What it does:** Controls how many tokens the AI predicts
 - **Example:** If set to 3, you get three token predictions. If set to 1, just one token.
 - **Tip:** Start with 3-5 tokens to see a good range of possibilities
 - **Note:** The model predicts tokens, which may be full words or parts of words
 
-### 🎨 Temperature (0.0 - 1.0) ✅ **Active**
+### 🎨 Temperature (0.0 - 1.0) 
 - **What it does:** Controls how creative or predictable the AI is
 - **Low values (0.0-0.3):** More predictable and focused. The AI picks the most obvious next tokens.
   - Example: "The weather is" → "good" (predictable)
@@ -79,11 +83,13 @@ The sidebar contains several controls. Here's what each one does and their curre
 - **Temperature 0.7:** → " confidently say" (moderate creativity)
 - **Temperature 1.0:** → " observe remarkable" (highly creative, unexpected)
 
-### 📚 Topic/Domain ⚠️ **UI Only**
-- **Current Status:** This setting is displayed in the UI but not currently implemented in the prediction logic
-- **Future Use:** Could be integrated to contextualize predictions based on domain
+### 📚 Topic/Domain 
+- **What it does:** Tells the AI what subject area you're writing about to contextualize predictions
+- **Available topics:** General, Technology, Health, Education, Finance, Entertainment, Science, Travel, Food, Sports, History
+- **Why it matters:** The same sentence can continue differently based on the topic context
+- **Tip:** Choose the topic that matches your writing context for better predictions
 
-**How Topic/Domain Could Work (Future Enhancement):**
+**Topic/Domain Examples:**
 
 *Input: "The system is"*
 - **Topic: Technology** → "processing the data" (tech-specific terms)
@@ -96,12 +102,13 @@ The sidebar contains several controls. Here's what each one does and their curre
 - **Topic: Health** → "improve patient outcomes significantly"
 - **Topic: Science** → "advance our understanding of"
 
-### 🎭 Tone ⚠️ **UI Only**
-- **Current Status:** This setting is displayed in the UI but not currently implemented in the prediction logic
+### 🎭 Tone 
+- **What it does:** Adjusts the style and formality of predictions
 - **Options:** Formal, Casual, Creative, Persuasive, Informative
-- **Future Use:** Could be integrated to adjust the style of predictions
+- **Why it matters:** Different tones produce different writing styles
+- **Tip:** Match the tone to your writing purpose
 
-**How Tone Could Work (Future Enhancement):**
+**Tone Examples:**
 
 *Input: "We need to discuss"*
 - **Formal Tone** → "the matter at our" (professional, business-like)
@@ -117,12 +124,13 @@ The sidebar contains several controls. Here's what each one does and their curre
 - **Persuasive Tone** → "compelling evidence that proves"
 - **Informative Tone** → "three main findings concerning"
 
-### 🌍 Output Language ⚠️ **UI Only**
-- **Current Status:** This setting is displayed in the UI but not currently implemented in the prediction logic
-- **Available Languages:** English, Spanish, French, German, Portuguese
-- **Future Use:** Could be integrated to predict tokens in the selected language
+### 🌍 Output Language 
+- **What it does:** Predicts words in the selected language
+- **Available languages:** English, Spanish, French, German, Portuguese
+- **Why it matters:** You can type in one language and get predictions in another, or maintain consistency in your chosen language
+- **Tip:** Great for multilingual writing or learning how phrases continue in different languages
 
-**How Output Language Could Work (Future Enhancement):**
+**Output Language Examples:**
 
 *Input: "Good morning, how are"*
 - **English** → "you doing today?"
@@ -138,22 +146,23 @@ The sidebar contains several controls. Here's what each one does and their curre
 - **German** → "einige Gedanken teilen über"
 - **Portuguese** → "compartilhar algumas ideias sobre"
 
-**Note:** This could enable cross-language writing assistance where you start in one language and get completions in another.
-
-### 🚫 Exclude Words ⚠️ **UI Only**
-- **Current Status:** This setting is displayed in the UI but not currently implemented in the prediction logic
-- **Future Use:** Could be integrated to prevent specific words from appearing in predictions
+**Note:** This enables cross-language writing assistance where you start in one language and get completions in another.
 
 ## 💡 How to Use the Tool
 
 1. **Enter your text** in the main text box (word, phrase, or paragraph)
-2. **Adjust the active settings** in the sidebar (Number of tokens and Temperature)
+2. **Adjust the settings** in the sidebar:
+   - Number of tokens to predict (1-10)
+   - Temperature for creativity control (0.0-1.0)
+   - Topic/Domain for context
+   - Tone for writing style
+   - Output Language for multilingual predictions
 3. **Click "Submit"** to get predictions
 4. **View the results:**
    - Token sequence table showing position, cumulative tokens, and probability for each token
    - Overall sequence probability
    - Your original text in gray with predicted tokens highlighted in red
-5. **Experiment!** Try changing temperature to see how predictions change
+5. **Experiment!** Try changing different parameters to see how predictions change
 
 ## 🛠️ Technical Details
 
@@ -170,22 +179,10 @@ The sidebar contains several controls. Here's what each one does and their curre
 
 ## 🔐 Privacy & Security
 
-- OpenAI API key is required (can be stored in secrets.toml for local use or Streamlit secrets for cloud deployment)
 - Text you enter is sent to OpenAI's servers for processing
 - No data is stored permanently by this application
-- API key can be loaded from secrets file or entered manually in the UI
-
-## 📊 Use Cases
-
-- **Writers:** Get inspiration for continuing sentences with probability insights
-- **Language Learners:** See natural word progressions and understand prediction confidence
-- **Data Scientists:** Explore how language models work with token-level probabilities
-- **Educators:** Demonstrate how AI understands language context and probability
-- **Curious Minds:** Experiment with how AI predicts human language and see the math behind it
-
 
 ---
 
 **Author:** JuanBioData  
-**Purpose:** Educational tool to explore AI-powered text prediction  
-**Technology Stack:** Python, Streamlit, OpenAI API
+
