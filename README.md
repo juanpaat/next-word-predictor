@@ -6,15 +6,23 @@
 
 An intelligent web application that predicts what word comes next in your text. Powered by advanced artificial intelligence, this tool analyzes the context of what you've written and suggests the most natural words to follow. Whether you type a single word, a phrase, or an entire paragraph, the AI considers the meaning, flow, and style to provide relevant predictions.
 
-This is a language model that understands context, tone, and subject matter. You can customize everything from the writing style (formal or casual) to the topic (technology, health, sports, etc.) to the level of creativity. The result is a powerful tool for exploring how modern AI processes and predicts human language, making it perfect for writers, language learners, educators, and anyone curious about artificial intelligence.
+This is a language model that understands context, tone, and subject matter. You can customize everything from the writing style (formal or casual) to the topic (technology, health, sports, etc.) and the output language. The result is a powerful tool for exploring how modern AI processes and predicts human language, making it perfect for writers, language learners, educators, and anyone curious about artificial intelligence.
 
 ## 🎯 What Does This Tool Do?
 
-Imagine you're writing and want to see what an AI thinks should come next. This tool analyzes your text and predicts the next 1-10 words that would naturally continue your sentence. It's like having autocomplete, but smarter and more customizable.
+Imagine you're writing and want to see what an AI thinks should come next. This tool analyses your text and predicts the most likely ways to continue it, each 1 to 10 words long, ranked by how probable the model thinks they are. It's like having autocomplete, but smarter and more customisable.
 
-**Basic Examples:**
-- You type: "The quick brown fox"
-- The AI predicts: "jumps, over, the"
+**Basic Example** (3 words per prediction):
+
+You type: "Thank you for your email"
+
+| Rank | Prediction | Probability |
+|---|---|---|
+| 1 | I appreciate your | 46.8% |
+| 2 | regarding the upcoming | 10.8% |
+| 3 | regarding our recent | 7.74% |
+| 4 | regarding the recent | 7.45% |
+| 5 | and for bringing | 5.88% |
 
 **More Examples:**
 
@@ -43,45 +51,35 @@ This application uses **GPT-4o-mini**, a powerful language model created by Open
 ### The Prediction Process:
 
 1. **You type your text** - Can be a word, phrase, or entire paragraph
-2. **The app sends your text to GPT-4o-mini** - Along with temperature settings to control creativity
-3. **GPT-4o-mini analyzes the context** - The AI looks at your text and considers:
-   - What words commonly follow in similar contexts
-   - The probability of each possible next word
-   - The temperature setting to balance predictability and creativity
-4. **You get predictions** - The AI returns the most likely next tokens with their probabilities, highlighted in red
+2. **The app sends your text to GPT-4o-mini** - Along with your topic, tone and language settings, and an instruction to continue the text without repeating it
+3. **GPT-4o-mini writes 40 possible continuations in a single request** - For every token it writes, it also reports the probability it gave that token. The app samples slightly more adventurously than usual so that more distinct alternatives turn up; this doesn't change the probabilities reported.
+4. **The app cuts each continuation to the number of words you asked for** - Words the model split into several tokens are kept whole
+5. **Identical predictions are merged and ranked** - A prediction's probability is the product of the probabilities of all its tokens, so it is the probability of the whole phrase
+6. **You get the ranked list** - Each prediction with its probability, as a number and as a bar
 
-The AI doesn't just look at the last word—it understands the full context of your sentence to make smarter predictions.
+The AI doesn't just look at the last word: it understands the full context of your sentence to make smarter predictions.
+
+### 📈 Reading the Probabilities
+
+- **One probability per prediction.** It is the probability of the whole phrase, however many words or tokens it has.
+- **Longer predictions have lower probabilities.** Every extra word is another choice the model has to make, so a 10-word prediction is almost always far less likely than a 1-word one.
+- **The list won't add up to 100%.** It only shows the top predictions; the rest of the probability is spread over every other way the text could continue.
+- **Fewer predictions than requested** means the model was so confident that its 40 attempts produced only that many distinct continuations. For "The quick brown fox" it is essentially 100% sure of "jumps over the".
+- **Numbers can shift between runs.** OpenAI's API doesn't return exactly the same probabilities every time, even for identical requests, so submitting the same text again can show somewhat different percentages.
 
 ## ⚙️ Understanding the Parameters
 
 The sidebar contains several controls. Here's what each one does and their current implementation status:
 
-### 📊 Number of Words to Predict (1-10) 
-- **What it does:** Controls how many tokens the AI predicts
-- **Example:** If set to 3, you get three token predictions. If set to 1, just one token.
-- **Tip:** Start with 3-5 tokens to see a good range of possibilities
-- **Note:** The model predicts tokens, which may be full words or parts of words
+### 📏 Words per Prediction (1-10)
+- **What it does:** Sets how long each prediction is, in whole words
+- **Example:** If set to 3, every prediction continues your text by three words
+- **Tip:** 1 to 3 words is best for comparing clear alternatives. Longer predictions vary more, so each one is less likely.
+- **Note:** The model works in tokens (often parts of words), but the app always returns whole words and never cuts one off
 
-### 🎨 Temperature (0.0 - 1.0) 
-- **What it does:** Controls how creative or predictable the AI is
-- **Low values (0.0-0.3):** More predictable and focused. The AI picks the most obvious next tokens.
-  - Example: "The weather is" → "good" (predictable)
-- **Medium values (0.4-0.7):** Balanced between predictable and creative
-- **High values (0.8-1.0):** More random and creative. The AI might surprise you with unexpected but valid choices.
-  - Example: "The weather is" → "magnificent" (more creative)
-- **Tip:** Use 0.7 for general use, lower for factual content, higher for creative writing
-
-**Temperature Examples:**
-
-*Input: "The future of artificial intelligence"*
-- **Temperature 0.1:** → " is" (highly predictable, most common continuation)
-- **Temperature 0.5:** → " will be" (balanced, natural flow)
-- **Temperature 0.9:** → " depends on" (more creative, less predictable)
-
-*Input: "In conclusion, we can"*
-- **Temperature 0.2:** → " see that" (formal, expected)
-- **Temperature 0.7:** → " confidently say" (moderate creativity)
-- **Temperature 1.0:** → " observe remarkable" (highly creative, unexpected)
+### 📊 Number of Predictions (1-10)
+- **What it does:** Sets how many alternative predictions to show, ranked from most to least likely
+- **Tip:** 5 gives a good overview of what the model is considering
 
 ### 📚 Topic/Domain 
 - **What it does:** Tells the AI what subject area you're writing about to contextualize predictions
@@ -152,30 +150,32 @@ The sidebar contains several controls. Here's what each one does and their curre
 
 1. **Enter your text** in the main text box (word, phrase, or paragraph)
 2. **Adjust the settings** in the sidebar:
-   - Number of tokens to predict (1-10)
-   - Temperature for creativity control (0.0-1.0)
+   - Words per prediction (1-10)
+   - Number of predictions (1-10)
    - Topic/Domain for context
    - Tone for writing style
    - Output Language for multilingual predictions
-3. **Click "Submit"** to get predictions
+3. **Click "Predict"** (or press Ctrl+Enter in the text box) to get predictions. New to the tool? Click one of the example sentences to fill the box and predict in one go.
 4. **View the results:**
-   - Token sequence table showing position, cumulative tokens, and probability for each token
-   - Overall sequence probability
-   - Your original text in gray with predicted tokens highlighted in red
+   - Predictions ranked by probability, each shown continuing the end of your text, with one probability for the whole prediction and a bar showing it visually (a full bar is 100%)
+   - "View as a table" shows the same predictions as a table you can sort, copy or download
+   - Results stay on screen when you change a setting, with a note that they used the old settings until you press Predict again
 5. **Experiment!** Try changing different parameters to see how predictions change
+
+The app follows your system's light or dark mode; you can switch it from the menu in the top-right corner (Settings).
 
 ## 🛠️ Technical Details
 
 - **Framework:** Built with Streamlit (Python web framework)
+- **Design:** Light and dark theme in `.streamlit/config.toml`; styling for the predictions list and layout in `style.css`
 - **AI Model:** OpenAI's GPT-4o-mini
 - **Model Type:** Large Language Model (LLM) trained on diverse text data
 - **API:** Communicates with OpenAI's servers to generate predictions
 - **Features:**
-  - Token-level predictions with probability scores
-  - Log probabilities for each predicted token
-  - Overall sequence probability calculation
-  - Supports temperature control for creativity adjustment
-  - Top 5 token alternatives available internally (not displayed in UI)
+  - Whole-word predictions built from the model's tokens
+  - One probability per prediction, calculated from the log probabilities of all its tokens
+  - All predictions sampled in a single request, so their probabilities are consistent with each other
+  - Ranked from most to least likely
 
 ## 🔐 Privacy & Security
 

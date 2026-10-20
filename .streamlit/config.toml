@@ -1,0 +1,50 @@
+[client]
+# Hide developer-only menu items (Deploy, Rerun) but keep Settings for the theme switch
+toolbarMode = "viewer"
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+font = "Geist:https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap"
+headingFont = "Newsreader:https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap"
+headingFontWeights = [500, 600, 600, 600, 600, 600]
+baseRadius = "0.625rem"
+buttonRadius = "full"
+showWidgetBorder = true
+showSidebarBorder = true
+
+# Light and dark palettes: warm paper neutrals with a single deep teal accent.
+# The app follows the viewer's system setting; either can be picked from the menu.
+[theme.light]
+primaryColor = "#0F766E"
+backgroundColor = "#FBFAF7"
+secondaryBackgroundColor = "#F2F0EA"
+textColor = "#1F1E1B"
+borderColor = "#DFDBD1"
+linkColor = "#0F766E"
+# Info boxes use the teal accent rather than Streamlit's blue
+blueColor = "#0F766E"
+blueBackgroundColor = "#0F766E14"
+blueTextColor = "#0B5A54"
+
+[theme.light.sidebar]
+backgroundColor = "#F4F2EC"
+secondaryBackgroundColor = "#FFFFFF"
+borderColor = "#DFDBD1"
+
+[theme.dark]
+primaryColor = "#1F9484"
+backgroundColor = "#121413"
+secondaryBackgroundColor = "#1B1E1D"
+textColor = "#E9E7E2"
+borderColor = "#2E3331"
+linkColor = "#4FBFAE"
+blueColor = "#1F9484"
+blueBackgroundColor = "#1F948430"
+blueTextColor = "#7DD3C4"
+
+[theme.dark.sidebar]
+backgroundColor = "#161918"
+secondaryBackgroundColor = "#212524"
+borderColor = "#2E3331"

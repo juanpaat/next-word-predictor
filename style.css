@@ -1,0 +1,309 @@
+/* Styling on top of the theme in .streamlit/config.toml.
+   Colours are mixed from currentColor so the custom elements suit light and dark mode. */
+
+:root {
+    --nwp-serif: "Newsreader", Georgia, "Times New Roman", serif;
+    --nwp-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* Layout: a comfortable reading width */
+[data-testid="stMainBlockContainer"] {
+    max-width: 54rem;
+    padding-top: 3.5rem;
+    padding-bottom: 3rem;
+}
+
+/* Hero */
+.st-key-hero h1 {
+    font-size: clamp(2.25rem, 5vw, 3.2rem);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    padding-bottom: 0.25rem;
+}
+
+.st-key-hero [data-testid="stMarkdownContainer"] p {
+    font-size: 1.075rem;
+    line-height: 1.6;
+    max-width: 38rem;
+    opacity: 0.78;
+    text-wrap: pretty;
+}
+
+/* Composer: the user's text is set in the same serif as the predictions */
+.st-key-composer textarea {
+    font-family: var(--nwp-serif);
+    font-size: 1.2rem;
+    line-height: 1.55;
+}
+
+/* Buttons: smooth hover and a small press */
+[data-testid="stButton"] button,
+[data-testid="stFormSubmitButton"] button {
+    transition: transform 0.15s var(--nwp-ease), background-color 0.2s ease,
+        border-color 0.2s ease, color 0.2s ease;
+}
+
+[data-testid="stButton"] button:active,
+[data-testid="stFormSubmitButton"] button:active {
+    transform: translateY(1px) scale(0.98);
+}
+
+.st-key-composer [data-testid="stFormSubmitButton"] button {
+    padding-inline: 1.6rem;
+    font-weight: 600;
+}
+
+/* Example prompts read as text, so they use the serif */
+.st-key-examples button p {
+    font-family: var(--nwp-serif);
+    font-size: 1.02rem;
+}
+
+/* Section titles in the main area */
+.st-key-results h3,
+.st-key-empty h3 {
+    font-size: 1.4rem;
+    letter-spacing: -0.01em;
+    padding-top: 1rem;
+}
+
+/* Sidebar */
+[data-testid="stSidebar"] h2 {
+    letter-spacing: -0.01em;
+}
+
+[data-testid="stSidebar"] h3 {
+    font-size: 1.05rem;
+    padding-top: 0.75rem;
+}
+
+/* How it works */
+.nwp-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.nwp-step {
+    padding: 1rem 1.1rem 1.15rem;
+    border: 1px solid color-mix(in srgb, currentColor 11%, transparent);
+    border-radius: 0.75rem;
+}
+
+.nwp-step-number {
+    display: inline-grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    margin-bottom: 0.6rem;
+    border-radius: 0.45rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--nwp-accent);
+    background: color-mix(in srgb, var(--nwp-accent) 13%, transparent);
+}
+
+.nwp-step-title {
+    margin: 0 0 0.2rem;
+    font-weight: 600;
+}
+
+.nwp-step-text {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    opacity: 0.72;
+}
+
+/* Ranked predictions */
+.nwp-steps,
+.nwp-list {
+    /* Teal pulled towards the text colour: darker in light mode, lighter in dark mode */
+    --nwp-accent: color-mix(in srgb, #14907f 72%, currentColor);
+}
+
+.nwp-list {
+    display: grid;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.nwp-item {
+    display: grid;
+    grid-template-columns: 1.75rem minmax(0, 1fr) auto;
+    grid-template-areas:
+        "rank phrase percent"
+        ".    bar    bar";
+    column-gap: 0.9rem;
+    row-gap: 0.65rem;
+    align-items: baseline;
+    padding: 0.95rem 1.15rem 1.05rem;
+    border: 1px solid color-mix(in srgb, currentColor 11%, transparent);
+    border-radius: 0.8rem;
+    background: color-mix(in srgb, currentColor 2%, transparent);
+    animation: nwp-rise 0.4s var(--nwp-ease) both;
+    animation-delay: calc(var(--i, 0) * 50ms);
+}
+
+.nwp-rank {
+    grid-area: rank;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.5;
+}
+
+.nwp-phrase {
+    grid-area: phrase;
+    margin: 0;
+    font-family: var(--nwp-serif);
+    font-size: 1.2rem;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.nwp-context {
+    opacity: 0.5;
+}
+
+.nwp-prediction {
+    padding: 0.04em 0.28em;
+    border-radius: 0.3rem;
+    color: var(--nwp-accent);
+    background: color-mix(in srgb, var(--nwp-accent) 12%, transparent);
+    font-weight: 500;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.nwp-percent {
+    grid-area: percent;
+    font-size: 1rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.nwp-bar {
+    grid-area: bar;
+    align-self: center;
+    height: 0.375rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: color-mix(in srgb, currentColor 9%, transparent);
+}
+
+.nwp-bar span {
+    display: block;
+    height: 100%;
+    min-width: 2px;
+    border-radius: inherit;
+    background: var(--nwp-accent);
+    transform-origin: left center;
+    animation: nwp-grow 0.7s var(--nwp-ease) both;
+    animation-delay: calc(var(--i, 0) * 50ms + 120ms);
+}
+
+/* The most likely prediction leads the list */
+.nwp-item.is-top {
+    grid-template-areas:
+        ".    label  label"
+        "rank phrase percent"
+        ".    bar    bar";
+    padding: 1.2rem 1.3rem 1.3rem;
+    border-color: color-mix(in srgb, var(--nwp-accent) 40%, transparent);
+    background: color-mix(in srgb, var(--nwp-accent) 6%, transparent);
+}
+
+.nwp-item.is-top .nwp-phrase {
+    font-size: 1.5rem;
+    line-height: 1.35;
+}
+
+.nwp-item.is-top .nwp-percent {
+    font-size: 1.3rem;
+    color: var(--nwp-accent);
+}
+
+.nwp-item.is-top .nwp-rank {
+    opacity: 0.8;
+    color: var(--nwp-accent);
+}
+
+.nwp-top-label {
+    grid-area: label;
+    margin: 0 0 -0.35rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--nwp-accent);
+}
+
+@keyframes nwp-rise {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+}
+
+@keyframes nwp-grow {
+    from {
+        transform: scaleX(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nwp-item,
+    .nwp-bar span {
+        animation: none;
+    }
+
+    [data-testid="stButton"] button,
+    [data-testid="stFormSubmitButton"] button {
+        transition: none;
+    }
+}
+
+@media (max-width: 640px) {
+    [data-testid="stMainBlockContainer"] {
+        padding-top: 2.5rem;
+    }
+
+    /* The phrase takes the full width; the percentage moves next to the bar */
+    .nwp-item {
+        grid-template-columns: 1.1rem minmax(0, 1fr) auto;
+        grid-template-areas:
+            "rank phrase phrase"
+            ".    bar    percent";
+        column-gap: 0.65rem;
+        padding-inline: 0.9rem;
+    }
+
+    .nwp-item.is-top {
+        grid-template-areas:
+            ".    label  label"
+            "rank phrase phrase"
+            ".    bar    percent";
+        padding-inline: 0.9rem;
+    }
+
+    .nwp-phrase {
+        font-size: 1.1rem;
+    }
+
+    .nwp-item.is-top .nwp-phrase {
+        font-size: 1.3rem;
+    }
+
+    .nwp-percent,
+    .nwp-item.is-top .nwp-percent {
+        align-self: center;
+        font-size: 0.95rem;
+    }
+}
